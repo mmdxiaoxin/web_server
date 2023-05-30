@@ -6,7 +6,7 @@
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}/bin/web_server",  // 替换为您的可执行文件路径
-        "args": [],                                           // 可选：传递给可执行文件的命令行参数
+        "args": ["-p"],                                           // 可选：传递给可执行文件的命令行参数
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}",
         "environment": [],

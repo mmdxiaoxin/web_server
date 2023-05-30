@@ -25,7 +25,7 @@ void *handle_client(void *arg)
     return NULL;
 }
 
-void start_web_server_mutil_thread(const char *root_directory, const char *root_index, int port)
+void start_web_server_multithread(const char *root_directory, const char *root_index, int port)
 {
     _root_dir = root_directory;
     _index = root_index;
@@ -97,17 +97,68 @@ void start_web_server_mutil_thread(const char *root_directory, const char *root_
     close(listen_sock);
 }
 
-void start_web_server_multi_process(const char *root_directory, const char *root_index, int port)
+void start_web_server_multiprocess(const char *root_directory, const char *root_index, int port)
 {
-    _root_dir = root_directory;
-    _index = root_index;
+    // Fork第一个子进程
+    pid_t pid = fork();
 
+    if (pid < 0)
+    {
+        perror("无法fork第一个子进程");
+        exit(1);
+    }
+    else if (pid > 0)
+    {
+        // 退出父进程
+        exit(0);
+    }
+
+    // 创建新会话并成为新会话的领导者
+    if (setsid() < 0)
+    {
+        perror("无法创建新会话");
+        exit(1);
+    }
+
+    // 再次fork以确保子进程无法在未来获取新的控制终端
+    pid = fork();
+
+    if (pid < 0)
+    {
+        perror("无法fork第二个子进程");
+        exit(1);
+    }
+    else if (pid > 0)
+    {
+        // 退出第一个子进程
+        exit(0);
+    }
+
+    // 关闭标准输入、输出和错误输出文件描述符
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+
+    // 根据需要更改工作目录
+    // chdir("/path/to/working/directory");
+
+    // 清除文件模式创建掩码
+    umask(0);
+
+    // 关闭不需要的打开文件描述符
+    int max_fd = sysconf(_SC_OPEN_MAX);
+    for (int fd = 0; fd < max_fd; fd++)
+    {
+        close(fd);
+    }
+
+    // 在此处实现守护进程的主要逻辑
     int listen_sock;
     struct sockaddr_in server_addr;
 
     if ((listen_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        perror("Failed to create listen socket");
+        perror("无法创建监听套接字");
         exit(1);
     }
 
@@ -150,32 +201,16 @@ void start_web_server_multi_process(const char *root_directory, const char *root
 
         printf("Accepted connection from %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
-        // 多进程处理请求
         pid_t pid = fork();
         if (pid == 0)
         {
-            // 创建新会话
-            if (setsid() < 0)
-            {
-                perror("Failed to create new session");
-                exit(1);
-            }
-
             close(listen_sock);
-
-            // 关闭标准输入、输出和错误输出文件描述符
-            close(STDIN_FILENO);
-            close(STDOUT_FILENO);
-            close(STDERR_FILENO);
-
             handle_request(client_sock, root_directory, root_index);
             close(client_sock);
-            printf("Child process exited\n");
             exit(0);
         }
         else if (pid > 0)
         {
-            printf("Created child process %d\n", pid);
             close(client_sock);
         }
         else
@@ -183,6 +218,7 @@ void start_web_server_multi_process(const char *root_directory, const char *root
             perror("Failed to create child process");
             close(client_sock);
         }
-        close(listen_sock);
     }
+
+    close(listen_sock);
 }

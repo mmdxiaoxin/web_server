@@ -22,7 +22,7 @@ void handle_file_upload(int client_sock, const char *file_data, int data_length)
 
     // 将文件数据写入到服务器文件
     size_t bytes_written = fwrite(file_data, 1, data_length, file);
-    if (bytes_written != data_length)
+    if (bytes_written != (size_t)data_length)
     {
         perror("Failed to write file");
         fclose(file);

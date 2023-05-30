@@ -13,7 +13,7 @@ void *handle_client(void *arg);
  * @param root_index 网站根索引
  * @param port 端口
 */
-void start_web_server_mutil_thread(const char *root_directory, const char *root_index, int port);
+void start_web_server_multithread(const char *root_directory, const char *root_index, int port);
 
 /**
  * 启动 Web 服务器(多进程版本)
@@ -21,6 +21,6 @@ void start_web_server_mutil_thread(const char *root_directory, const char *root_
  * @param root_index 网站根索引
  * @param port 端口
 */
-void start_web_server_multi_process(const char *root_directory, const char *root_index, int port);
+void start_web_server_multiprocess(const char *root_directory, const char *root_index, int port);
 
 #endif // !HTTP_SERVER_H
