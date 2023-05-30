@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
             printf("无效的选项或参数：%s\n", argv[i]);
             printf("用法: %s [配置文件] [选项]\n", argv[0]);
             printf("选项:\n");
-            printf("  -p              使用多进程模式\n");
+            printf("  -p              使用多进程模式(会进入后台运行)\n");
             printf("  -c <文件路径>   指定配置文件\n");
             return -1;
         }
