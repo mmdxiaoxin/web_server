@@ -1,0 +1,3 @@
+RootDirectory web_root
+DefaultIndex index.html
+Port 8080
