@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script>
+			// 定义一个名为check的函数
+			function check() {
+				// 将注册按钮设置为禁用状态
+				document.querySelector("#register").setAttribute("disabled", "disabled");
+
+				// 获取用户名输入框的值
+				let username = document.querySelector("#username")?.value;
+
+				// 如果用户名为空
+				if (!username) {
+					// 将焦点设置回用户名输入框
+					document.querySelector("#username").focus();
+					return;
+				}
+
+				// 构建请求URL，包含用户名参数
+				let url = `https://mock.apifox.cn/m1/1893392-0-default/checkUser?username=${username}`;
+
+				// 创建XMLHttpRequest对象
+				let xhr = new XMLHttpRequest();
+
+				// 定义回调函数，处理异步请求的结果
+				xhr.onreadystatechange = function() {
+					if (xhr.readyState == 4) { // 请求完成
+						if (xhr.status == 200) { // 响应成功
+							console.log(xhr.responseText);
+							let msgTag = document.querySelector("#msg"); // 消息提示框元素
+							let obj = JSON.parse(xhr.responseText); // 解析响应的JSON数据
+							let code = obj?.code; // 获取响应中的code字段值
+							if (code == 0) { // 如果code为0，表示用户名可用
+								msgTag.innerText = obj.msg; // 设置消息提示框的文本内容
+								msgTag.style.color = "blue"; // 设置消息提示框的颜色为蓝色
+								document.querySelector("#register").removeAttribute("disabled"); // 移除注册按钮的禁用状态
+							} else if (code == 1) { // 如果code为1，表示用户名不可用
+								msgTag.innerText = obj.msg; // 设置消息提示框的文本内容
+								msgTag.style.color = "red"; // 设置消息提示框的颜色为红色
+							} else { // 其他情况，表示出现未知错误
+								msgTag.innerText = "出现未知错误";
+								msgTag.style.color = "red";
+							}
+						}
+					}
+				};
+
+				// 发送GET请求
+				xhr.open("get", url);
+				xhr.send();
+			}
+
+			// 当页面加载完成时执行的函数
+			window.onload = function() {
+				// 将注册按钮设置为禁用状态
+				document.querySelector("#register").setAttribute("disabled", "disabled");
+
+				// 获取用户名输入框的元素
+				let usernameEle = document.querySelector("#username");
+
+				// 当用户名输入框失去焦点时，调用check函数进行用户名检查
+				usernameEle.addEventListener("blur", check);
+			}
+		</script>
+	</head>
+	<body>
+		<h3>测试数据：用户名zhang3不可用，其它可用</h3>
+		<form>
+			<fieldset>
+				<legend>用户注册</legend>
+				用户名:<input type="text" name="username" id="username" /><span id="msg"></span>
+				<br>
+				密码：<input type="password" name="userpassword" id="userpassword" />
+				<input type="submit" id="register" value="注册" />
+			</fieldset>
+		</form>
+	</body>
+</html>
+
+<!-- 以上代码是一个HTML页面，包含了一个用户注册的表单。该页面使用了JavaScript代码实现了通过AJAX技术进行用户名检查的功能。
+
+在页面加载完成时，会将注册按钮设置为禁用状态。
+当用户名输入框失去焦点时，会触发一个blur事件，调用check函数进行用户名的检查。
+check函数会获取用户名输入框的值，并构建一个带有用户名参数的URL。
+通过XMLHttpRequest对象发送GET请求到指定的URL。
+在发送请求后，定义了一个回调函数，用于处理异步请求的结果。
+如果请求成功，回调函数会解析响应的JSON数据，并根据返回的code字段的值更新消息提示框的内容和样式。
+如果请求失败或出现未知错误，会相应地更新消息提示框的内容和样式。
+如果用户名可用，将移除注册按钮的禁用状态，使其可用。
+整体而言，该代码演示了如何使用AJAX技术实现实时检查用户名可用性的功能，并通过原生的JavaScript进行了实现。 -->

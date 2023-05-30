@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>实时天气查询</title>
+		<style>
+			table {
+				width: 100%;
+			}
+			th {
+				text-align: center;
+			}
+			td {
+				text-align: left;
+			}
+		</style>
+	</head>
+	<body>
+		<table border="1">
+			<caption>天气预报</caption>
+			<tr>
+			    <td colspan="4">城市: <span id="cityName"></span></td>
+			</tr>
+			<tr>
+				<th>预测日期</th>
+				<th>天气</th>
+				<th>最高温度</th>
+				<th>最低温度</th>
+			</tr>
+			<script>
+				function createRow(date, dayCondition, dayTemperature, nightTemperature) {
+					var table = document.getElementsByTagName('table')[0];
+					var row = table.insertRow(-1);
+					var cell1 = row.insertCell(0);
+					var cell2 = row.insertCell(1);
+					var cell3 = row.insertCell(2);
+					var cell4 = row.insertCell(3);
+					cell1.innerHTML = date;
+					cell2.innerHTML = dayCondition;
+					cell3.innerHTML = dayTemperature + "℃";
+					cell4.innerHTML = nightTemperature + "℃";
+				}
+
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', 'https://mock.apifox.cn/m1/1893392-0-default/cityweather', true);
+				xhr.onreadystatechange = function() {
+					if (xhr.readyState === 4 && xhr.status === 200) {
+						var response = JSON.parse(xhr.responseText);
+						var city = response.data.city.pname + response.data.city.secondaryname + response.data.city.name;
+						var forecastData = response.data.forecast;
+						document.getElementById('cityName').innerHTML = city;
+						for (var i = 0; i < forecastData.length; i++) {
+							var forecast = forecastData[i];
+							createRow(
+								forecast.predictDate,
+								forecast.conditionDay,
+								forecast.tempDay,
+								forecast.tempNight
+							);
+						}
+					}
+				};
+				xhr.send();
+			</script>
+		</table>
+	</body>
+</html>

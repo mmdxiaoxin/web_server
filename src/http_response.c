@@ -48,3 +48,9 @@ void internal_server_error(int client_sock)
     char response[] = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\n500 Internal Server Error";
     send_response(client_sock, response);
 }
+
+void method_not_allowed(int client_sock)
+{
+    char response[] = "HTTP/1.1 405 Method Not Allowed\r\nContent-Type: text/plain\r\n\r\n405 Method Not Allowed";
+    send_response(client_sock, response);
+}

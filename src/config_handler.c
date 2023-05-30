@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "config_handler.h"
 
 int parse_config(const char *config_file, char *root_directory, char *root_index, int *port)

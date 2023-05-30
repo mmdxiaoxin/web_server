@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <!-- 引入 echarts.js -->
+    <script src="js/echarts.min.js"></script>
+    <script src="js/jquery-1.8.2.min.js"></script>
+</head>
+
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="width: 900px;height:600px;"></div>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+
+    var myChart = echarts.init(document.getElementById('main'));
+    // 显示标题，图例和空的坐标轴
+    myChart.setOption({
+        title: {
+            text: '一天用电量分布',
+            subtext: '纯属虚构'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross'
+            }
+        },
+        toolbox: {
+            show: true,
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: []
+        },
+        yAxis: {
+            type: 'value',
+            axisLabel: {
+                formatter: '{value} W'
+            },
+            axisPointer: {
+                snap: true
+            }
+        },
+        visualMap: {
+            show: false,
+            dimension: 0,
+            pieces: [{
+                lte: 6,
+                color: 'green'
+            }, {
+                gt: 6,
+                lte: 8,
+                color: 'red'
+            }, {
+                gt: 8,
+                lte: 14,
+                color: 'green'
+            }, {
+                gt: 14,
+                lte: 17,
+                color: 'red'
+            }, {
+                gt: 17,
+                color: 'green'
+            }]
+        },
+        series: [
+            {
+                name: '用电量',
+                type: 'line',
+                smooth: true,
+                data: [],
+                markArea: {
+                    data: [[{
+                        name: '早高峰',
+                        xAxis: '07:30'
+                    }, {
+                        xAxis: '10:00'
+                    }], [{
+                        name: '晚高峰',
+                        xAxis: '17:30'
+                    }, {
+                        xAxis: '21:15'
+                    }]]
+                }
+            }
+        ]
+
+
+    });
+    $.get('daily.json').done(function (data) {
+        // 填入数据
+        myChart.setOption({
+            xAxis: {
+                data: data.categories
+            },
+            series: [{
+                // 根据名字对应到相应的系列
+                name: '用电量',
+                data: data.data
+            }]
+
+        });
+    });
+</script>
+</body>
+
+</html>
