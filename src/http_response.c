@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include "http_response.h"
+
 #define BUFFER_SIZE 1024
 
 void send_response(int client_sock, const char *response)

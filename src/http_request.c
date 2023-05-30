@@ -133,11 +133,9 @@ void handle_request(int client_sock, const char *root_directory, const char *roo
             }
         }
 
-        // TODO: 在这里可以对请求体数据进行处理，例如解析表单数据、处理上传文件等
-
         // 处理文件上传
         // handle_file_upload(client_sock, body, content_length);
-        //  发送响应
+        //  发送连接成功响应
         const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nPOST Request Received";
         send_response(client_sock, response);
     }

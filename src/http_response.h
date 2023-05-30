@@ -28,4 +28,10 @@ void not_found(int client_sock);
 */
 void internal_server_error(int client_sock);
 
+/**
+ * 405 Method Not Allowed
+ * @param client_sock 客户端套接字
+*/
+void method_not_allowed(int client_sock);
+
 #endif // HTTP_RESPONSE_H
