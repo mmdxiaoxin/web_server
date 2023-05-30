@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 #include "http_server.h"
 #include "http_request.h"

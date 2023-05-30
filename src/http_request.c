@@ -10,6 +10,7 @@
 
 #define BUFFER_SIZE 1024
 #define MAX_REQUEST_SIZE 2048
+#define MAX_HEADER_SIZE 2048
 #define DEFAULT_CONTENT_TYPE "text/html"
 #define GET_METHOD "GET"
 #define POST_METHOD "POST"
@@ -112,13 +113,16 @@ void handle_request(int client_sock, const char *root_directory, const char *roo
 
         // 查找Content-Length头部字段，以确定请求体的大小
         char *header;
+        char request_headers[MAX_HEADER_SIZE]; // 存储请求头部字段
+        memset(request_headers, 0, sizeof(request_headers));
         while ((header = strtok(NULL, "\r\n")) != NULL)
         {
             if (strstr(header, "Content-Length: ") == header)
             {
                 content_length = atoi(header + strlen("Content-Length: "));
-                break;
             }
+            strcat(request_headers, header);
+            strcat(request_headers, "\r\n"); // 添加换行符
         }
 
         // 读取请求体数据
@@ -134,7 +138,7 @@ void handle_request(int client_sock, const char *root_directory, const char *roo
         }
 
         // 获取Content-Type头部字段
-        char *content_type = get_header_value(header, "Content-Type");
+        char *content_type = get_header_value(request_headers, "Content-Type");
 
         // 检查Content-Type是否为multipart/form-data
         if (content_type != NULL && strstr(content_type, "multipart/form-data") != NULL)
