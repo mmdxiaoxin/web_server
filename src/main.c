@@ -17,7 +17,8 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    start_web_server(root_directory, root_index, port);
+    start_web_server_mutil_thread(root_directory, root_index, port);
+    //start_web_server_multi_process(root_directory, root_index, port);
 
     return 0;
 }

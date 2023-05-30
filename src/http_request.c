@@ -77,14 +77,22 @@ void handle_request(int client_sock, const char *root_directory, const char *roo
             }
             else if (strstr(file_path, ".css") != NULL)
             {
+                printf("Sending CSS file\n");
                 send_file(client_sock, file_path, "text/css");
             }
             else if (strstr(file_path, ".js") != NULL)
             {
+                printf("Sending JS file\n");
                 send_file(client_sock, file_path, "text/javascript");
+            }
+            else if (strstr(file_path, ".webp") != NULL)
+            {
+                printf("Sending WebP file\n");
+                send_file(client_sock, file_path, "image/webp");
             }
             else
             {
+                printf("Sending HTML file\n");
                 send_file(client_sock, file_path, DEFAULT_CONTENT_TYPE);
             }
         }
