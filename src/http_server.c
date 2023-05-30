@@ -10,6 +10,9 @@
 #include <pthread.h>
 #include <signal.h>
 
+#include "http_server.h"
+#include "http_request.h"
+
 void start_web_server(const char *root_directory, const char *root_index, int port)
 {
     int listen_sock;
@@ -45,11 +48,12 @@ void start_web_server(const char *root_directory, const char *root_index, int po
     }
 
     printf("Server is running on port %d\n", port);
-
+    
     while (1)
     {
         struct sockaddr_in client_addr;
         socklen_t client_addr_len = sizeof(client_addr);
+        printf("等待客户端的连接\n");
         int client_sock = accept(listen_sock, (struct sockaddr *)&client_addr, &client_addr_len);
 
         if (client_sock < 0)

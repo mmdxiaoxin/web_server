@@ -20,7 +20,6 @@ void send_file(int client_sock, const char *file_path, const char *content_type)
         internal_server_error(client_sock);
         return;
     }
-
     off_t file_size = lseek(file_fd, 0, SEEK_END);
     lseek(file_fd, 0, SEEK_SET);
 
