@@ -37,3 +37,27 @@ void handle_file_upload(int client_sock, const char *file_data, int data_length)
     const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nFile Uploaded";
     send_response(client_sock, response);
 }
+
+char *get_header_value(const char *headers, const char *header_name)
+{
+    const char *header_start = strstr(headers, header_name);
+    if (header_start == NULL)
+    {
+        return NULL; // 头部字段未找到
+    }
+
+    header_start += strlen(header_name);
+
+    const char *header_end = strchr(header_start, '\r');
+    if (header_end == NULL)
+    {
+        return NULL; // 无效的头部字段格式
+    }
+
+    size_t value_length = header_end - header_start;
+    char *header_value = malloc(value_length + 1);
+    strncpy(header_value, header_start, value_length);
+    header_value[value_length] = '\0';
+
+    return header_value;
+}

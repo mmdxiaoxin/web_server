@@ -133,11 +133,21 @@ void handle_request(int client_sock, const char *root_directory, const char *roo
             }
         }
 
-        // 处理文件上传
-        // handle_file_upload(client_sock, body, content_length);
-        //  发送连接成功响应
-        const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nPOST Request Received";
-        send_response(client_sock, response);
+        // 获取Content-Type头部字段
+        char *content_type = get_header_value(header, "Content-Type");
+
+        // 检查Content-Type是否为multipart/form-data
+        if (content_type != NULL && strstr(content_type, "multipart/form-data") != NULL)
+        {
+            // 是文件上传，调用handle_file_upload函数
+            handle_file_upload(client_sock, body, content_length);
+        }
+        else
+        {
+            // 不是文件上传，执行其他逻辑或返回错误响应
+            const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nPOST Request Received";
+            send_response(client_sock, response);
+        }
     }
     else if (strcmp(method, PUT_METHOD) == 0)
     {

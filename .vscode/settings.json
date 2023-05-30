@@ -2,6 +2,7 @@
     "files.associations": {
         "stdlib.h": "c",
         "string.h": "c",
-        "http_utils.h": "c"
+        "http_utils.h": "c",
+        "http_response.h": "c"
     }
 }
