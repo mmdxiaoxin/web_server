@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "C Debug",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/bin/web_server",  // 替换为您的可执行文件路径
+        "args": [],                                           // 可选：传递给可执行文件的命令行参数
+        "stopAtEntry": false,
+        "cwd": "${workspaceFolder}",
+        "environment": [],
+        "externalConsole": false,
+        "MIMode": "gdb",
+        "miDebuggerPath": "/usr/bin/gdb"                      // 替换为您的 gdb 路径
+      }
+    ]
+  }
+  
