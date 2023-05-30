@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "http_server.h"
 #include "config_handler.h"

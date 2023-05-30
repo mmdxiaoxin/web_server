@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "http_utils.h"
+#include "http_response.h"
 
 void handle_file_upload(int client_sock, const char *file_data, int data_length)
 {
