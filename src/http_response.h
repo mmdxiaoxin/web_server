@@ -34,4 +34,10 @@ void internal_server_error(int client_sock);
 */
 void method_not_allowed(int client_sock);
 
+/**
+ * 400 Bad Request
+ * @param client_sock 客户端套接字
+*/
+void bad_request(int client_sock);
+
 #endif // HTTP_RESPONSE_H

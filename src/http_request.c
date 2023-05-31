@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -32,6 +33,13 @@ void handle_request(int client_sock, const char *root_directory, const char *roo
 
     char *method = strtok(buffer, " ");
     char *path = strtok(NULL, " ");
+
+    if (method == NULL || path == NULL)
+    {
+        // 请求行为空或方法和路径为空，处理错误
+        not_found(client_sock);
+        return;
+    }
 
     if (strcmp(method, GET_METHOD) == 0)
     {
@@ -125,23 +133,27 @@ void handle_request(int client_sock, const char *root_directory, const char *roo
             strcat(request_headers, "\r\n"); // 添加换行符
         }
 
-        // 读取请求体数据
-        if (content_length > 0)
+        // 检查Content-Length是否为有效值
+        if (content_length <= 0)
         {
-            int bytes_read = read(client_sock, body, content_length);
-            if (bytes_read < 0)
-            {
-                perror("Failed to read request body");
-                internal_server_error(client_sock);
-                return;
-            }
+            bad_request(client_sock);
+            return;
+        }
+
+        // 读取请求体数据
+        int bytes_read = read(client_sock, body, content_length);
+        if (bytes_read < 0)
+        {
+            perror("Failed to read request body");
+            internal_server_error(client_sock);
+            return;
         }
 
         // 获取Content-Type头部字段
         char *content_type = get_header_value(request_headers, "Content-Type");
 
         // 检查Content-Type是否为multipart/form-data
-        if (content_type != NULL && strstr(content_type, "multipart/form-data") != NULL)
+        if (content_type != NULL && strcasecmp(content_type, "multipart/form-data") == 0)
         {
             // 是文件上传，调用handle_file_upload函数
             handle_file_upload(client_sock, body, content_length);
