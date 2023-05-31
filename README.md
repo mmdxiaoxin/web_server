@@ -1,10 +1,10 @@
-# Web Server
+# 程序说明
 
 该程序是一个简单的HTTP服务器，支持处理GET和POST请求，并提供多线程和多进程两种模式。
 
 ## 依赖
 
-- C编译器
+- C编译器（c99)
 - POSIX线程库 (pthread)
 - Linux环境
 
@@ -13,7 +13,7 @@
 使用以下命令编译程序：
 
 ```bash
-gcc main.c -o web_server
+gcc main.c -pthread -std=c99 -o web_server
 ```
 
 或者使用项目中的Makefile：
@@ -112,7 +112,7 @@ port=8080
 ./web_server
 ```
 
-1. 使用自定义配置文件以多进程模式运行服务器：
+2. 使用自定义配置文件以多进程模式运行服务器：
 
 ```bash
 ./web_server -p -c custom_config.txt
