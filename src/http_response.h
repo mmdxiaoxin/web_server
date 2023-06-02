@@ -1,6 +1,7 @@
 #ifndef HTTP_RESPONSE_H
 #define HTTP_RESPONSE_H
 
+// 以下函数为HTTP响应发送模块
 /**
  * 发送响应
  * @param client_sock 客户端套接字
@@ -16,6 +17,7 @@ void send_response(int client_sock, const char *response);
 */
 void send_file(int client_sock, const char *file_path, const char *content_type);
 
+// 以下函数为错误处理模块
 /**
  * 404 Not Found
  * @param client_sock 客户端套接字

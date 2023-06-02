@@ -3,6 +3,7 @@
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
+#include <sys/socket.h>
 #include <fcntl.h>
 
 #include "http_request.h"
@@ -77,14 +78,7 @@ void handle_request(int client_sock, const char *root_directory, const char *roo
 
         if (access(file_path, F_OK) == 0)
         {
-            if (strstr(file_path, ".cgi") != NULL)
-            {
-                char *envp[] = {NULL};
-                char *argv[] = {file_path, NULL};
-                dup2(client_sock, STDOUT_FILENO);
-                execve(file_path, argv, envp);
-            }
-            else if (strstr(file_path, ".css") != NULL)
+            if (strstr(file_path, ".css") != NULL)
             {
                 printf("Sending CSS file\n");
                 send_file(client_sock, file_path, "text/css");
@@ -113,57 +107,108 @@ void handle_request(int client_sock, const char *root_directory, const char *roo
     else if (strcmp(method, POST_METHOD) == 0)
     {
         // 处理POST请求
-
-        // 读取请求体数据
-        char body[MAX_REQUEST_SIZE];
-        memset(body, 0, sizeof(body));
-        int content_length = 0;
-
-        // 查找Content-Length头部字段，以确定请求体的大小
         char *header;
         char request_headers[MAX_HEADER_SIZE]; // 存储请求头部字段
         memset(request_headers, 0, sizeof(request_headers));
         while ((header = strtok(NULL, "\r\n")) != NULL)
         {
-            if (strstr(header, "Content-Length: ") == header)
-            {
-                content_length = atoi(header + strlen("Content-Length: "));
-            }
             strcat(request_headers, header);
             strcat(request_headers, "\r\n"); // 添加换行符
         }
+        // 获取Content-Length和Content-Type头部字段的值
+        char *content_length_str = get_header_value(request_headers, "Content-Length: ");
+        char *content_type = get_header_value(request_headers, "Content-Type: ");
 
-        // 检查Content-Length是否为有效值
-        if (content_length <= 0)
+        // 检查是否存在Content-Length和Content-Type头部字段
+        if (content_length_str == NULL || content_type == NULL)
         {
             bad_request(client_sock);
+            free(content_length_str);
+            free(content_type);
             return;
         }
 
-        // 读取请求体数据
-        int bytes_read = read(client_sock, body, content_length);
-        if (bytes_read < 0)
-        {
-            perror("Failed to read request body");
-            internal_server_error(client_sock);
-            return;
-        }
-
-        // 获取Content-Type头部字段
-        char *content_type = get_header_value(request_headers, "Content-Type");
+        // 将Content-Length字符串转换为整数
+        int content_length = atoi(content_length_str);
+        free(content_length_str);
 
         // 检查Content-Type是否为multipart/form-data
-        if (content_type != NULL && strcasecmp(content_type, "multipart/form-data") == 0)
+        if (strncmp(content_type, "multipart/form-data", 19) != 0)
         {
-            // 是文件上传，调用handle_file_upload函数
-            handle_file_upload(client_sock, body, content_length);
+            not_found(client_sock);
+            free(content_type);
+            return;
         }
-        else
+
+        // 获取分隔符
+        char *boundary_start = strstr(content_type, "boundary=");
+        if (boundary_start == NULL)
         {
-            // 不是文件上传，执行其他逻辑或返回错误响应
-            const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nPOST Request Received";
-            send_response(client_sock, response);
+            bad_request(client_sock);
+            free(content_type);
+            return;
         }
+
+        char *boundary = boundary_start + 9;
+        size_t boundary_len = strlen(boundary);
+
+        // 读取请求体数据
+        char *body_data = malloc(content_length + 1);
+        if (body_data == NULL)
+        {
+            internal_server_error(client_sock);
+            free(content_type);
+            return;
+        }
+
+        //获取请求体数据长度
+        ssize_t total_bytes_read = 0;
+        ssize_t bytes_read;
+        while (total_bytes_read < content_length)
+        {
+            bytes_read = recv(client_sock, body_data + total_bytes_read, content_length - total_bytes_read, 0);
+            if (bytes_read == -1)
+            {
+                internal_server_error(client_sock);
+                free(content_type);
+                free(body_data);
+                return;
+            }
+            if (bytes_read == 0)
+            {
+                break; // 连接已关闭
+            }
+            total_bytes_read += bytes_read;
+        }
+
+        if (total_bytes_read != content_length)
+        {
+            internal_server_error(client_sock);
+            free(content_type);
+            free(body_data);
+            return;
+        }
+
+        body_data[content_length] = '\0';
+
+        // 解析请求体数据，提取文件数据
+        char *file_data_start = strstr(body_data, "\r\n\r\n") + 4;
+        if (file_data_start == NULL)
+        {
+            bad_request(client_sock);
+            free(content_type);
+            free(body_data);
+            return;
+        }
+
+        int file_data_length = content_length - (file_data_start - body_data) - boundary_len - 6;
+
+        // 处理文件上传
+        handle_file_upload(client_sock, file_data_start, file_data_length);
+
+        // 释放内存
+        free(content_type);
+        free(body_data);
     }
     else if (strcmp(method, PUT_METHOD) == 0)
     {
