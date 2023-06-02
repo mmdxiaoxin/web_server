@@ -28,4 +28,4 @@ run:
 web:
 	cp -r $(WEBDIR) config.txt $(BINDIR)/
 
-.PHONY: all clean create_symlinks run web
+.PHONY: all clean run web
