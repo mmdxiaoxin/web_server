@@ -1,10 +1,10 @@
 # 程序说明
 
-该程序是一个简单的HTTP服务器，支持处理GET和POST请求，并提供多线程和多进程两种模式。
+该程序是一个简单的WEB服务器，支持处理GET和POST请求，并提供多线程和多进程两种模式。
 
 ## 依赖
 
-- C编译器（c99)
+- C编译器（GCC)
 - POSIX线程库 (pthread)
 - Linux环境
 
@@ -35,7 +35,11 @@ make all
 - `-p` 使用多进程模式
 - `-c <文件路径>` 指定配置文件
 
-默认情况下，程序将使用"config.txt"作为配置文件，并以多线程模式启动。
+默认情况下，程序将使用可执行文件所在目录的`"config.txt"`作为配置文件，并以多线程模式启动。
+
+## 停止
+
+使用`<Ctrl+C>`即可关闭多线程服务。多进程服务可以使用`stop_web_server.sh`脚本快速关闭。
 
 ## 配置文件
 
@@ -65,11 +69,10 @@ port=8080
 - 如果路径包含查询字符串，程序解析查询字符串，并打印每个键值对的内容。
 - 根据文件路径的后缀名确定文件的类型，并返回相应的Content-Type头部字段。
 - 支持的文件类型有：
-  - `.cgi` 执行CGI脚本并返回结果。
   - `.css` 返回CSS文件。
   - `.js` 返回JavaScript文件。
   - `.webp` 返回WebP图像文件。
-  - 其他文件类型将返回默认的Content-Type ("text/html")。
+  - 其他文件类型将返回默认的Content-Type ("text/html")即：`.html`。
 
 ### POST请求
 
@@ -115,10 +118,10 @@ port=8080
 2. 使用自定义配置文件以多进程模式运行服务器：
 
 ```bash
-./web_server -p -c custom_config.txt
+./web_server -p -c /path/custom_config.txt
 ```
 
-## 代码描述：
+## 代码描述（主要函数）：
 
 - `config_handler.h`：包含`parse_config`函数，用于解析配置文件并将配置项的值保存在传入的参数中。
 - `http_request.h`：包含`handle_request`函数，用于处理客户端发来的HTTP请求。根据请求的方法和路径执行相应的操作，如返回文件内容、处理文件上传等。
