@@ -20,9 +20,10 @@ void send_file(int client_sock, const char *file_path, const char *content_type)
     {
         perror("Failed to open file");
         internal_server_error(client_sock);
-        return;
+        exit(1);
     }
     off_t file_size = lseek(file_fd, 0, SEEK_END);
+    // 获取文件大小后，将文件指针重置到文件开头
     lseek(file_fd, 0, SEEK_SET);
 
     char header[BUFFER_SIZE];
@@ -54,5 +55,10 @@ void internal_server_error(int client_sock)
 void method_not_allowed(int client_sock)
 {
     char response[] = "HTTP/1.1 405 Method Not Allowed\r\nContent-Type: text/plain\r\n\r\n405 Method Not Allowed";
+    send_response(client_sock, response);
+}
+
+void bad_request(int client_sock) {
+    const char *response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\n\r\nBad Request";
     send_response(client_sock, response);
 }

@@ -140,9 +140,6 @@ void start_web_server_multiprocess(const char *root_directory, const char *root_
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
 
-    // 根据需要更改工作目录
-    // chdir("/path/to/working/directory");
-
     // 清除文件模式创建掩码
     umask(0);
 
@@ -153,7 +150,6 @@ void start_web_server_multiprocess(const char *root_directory, const char *root_
         close(fd);
     }
 
-    // 在此处实现守护进程的主要逻辑
     int listen_sock;
     struct sockaddr_in server_addr;
 

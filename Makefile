@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -g -std=c99 -lpthread
 LDFLAGS = -lm
 
 SRCDIR = src
@@ -28,4 +28,4 @@ run:
 web:
 	cp -r $(WEBDIR) config.txt $(BINDIR)/
 
-.PHONY: all clean create_symlinks run web
+.PHONY: all clean run web
